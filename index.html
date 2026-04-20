@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Task Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-tasks"></i>
+                    TaskFlow
+                </h1>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search tasks..." id="searchInput">
+                    </div>
+                    <button class="btn-primary" onclick="showTaskForm()">
+                        <i class="fas fa-plus"></i>
+                        Create Task
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <div class="tabs-container">
+                <button class="tab active" data-tab="list">
+                    <i class="fas fa-list"></i>
+                    List
+                </button>
+                <button class="tab" data-tab="deadlines">
+                    <i class="fas fa-clock"></i>
+                    Deadlines
+                </button>
+                <button class="tab" data-tab="calendar">
+                    <i class="fas fa-calendar"></i>
+                    Calendar
+                </button>
+                <button class="tab" data-tab="planner">
+                    <i class="fas fa-project-diagram"></i>
+                    Planner
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- List View -->
+            <div id="list" class="tab-content active">
+                <div class="view-header">
+                    <h2>All Tasks</h2>
+                    <div class="filters">
+                        <select id="filterStatus" onchange="renderTasks()">
+                            <option value="all">All Status</option>
+                            <option>To Do</option>
+                            <option>In Progress</option>
+                            <option>Completed</option>
+                        </select>
+                        <select id="filterPriority" onchange="renderTasks()">
+                            <option value="all">All Priority</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                        <input type="text" id="filterCategory" placeholder="Filter by category..." onkeyup="renderTasks()">
+                    </div>
+                </div>
+                <div id="taskList" class="task-list"></div>
+            </div>
+
+            <!-- Deadlines View -->
+            <div id="deadlines" class="tab-content">
+                <div class="view-header">
+                    <h2>Deadlines</h2>
+                </div>
+                <div class="deadline-cards">
+                    <div class="deadline-card overdue">
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Overdue</h3>
+                            <span class="count" id="overdueCount">0</span>
+                        </div>
+                    </div>
+                    <div class="deadline-card today">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Due Today</h3>
+                            <span class="count" id="todayCount">0</span>
+                        </div>
+                    </div>
+                    <div class="deadline-card week">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Due This Week</h3>
+                            <span class="count" id="weekCount">0</span>
+                        </div>
+                    </div>
+                    <div class="deadline-card next-week">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Due Next Week</h3>
+                            <span class="count" id="nextWeekCount">0</span>
+                        </div>
+                    </div>
+                    <div class="deadline-card completed">
+                        <div class="card-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Completed</h3>
+                            <span class="count" id="completedCount">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="deadlineTasks" class="task-list"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar" class="tab-content">
+                <div class="view-header">
+                    <h2>Calendar</h2>
+                    <div class="calendar-controls">
+                        <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="currentMonth"></h3>
+                        <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+            </div>
+
+            <!-- Planner View -->
+            <div id="planner" class="tab-content">
+                <div class="view-header">
+                    <h2>Planner</h2>
+                </div>
+                <div class="planner-container">
+                    <div class="planner-column">
+                        <h3><i class="fas fa-circle"></i> To Do</h3>
+                        <div id="todoTasks" class="planner-tasks" ondrop="dropTaskPlanner(event)" ondragover="allowDrop(event)"></div>
+                    </div>
+                    <div class="planner-column">
+                        <h3><i class="fas fa-spinner"></i> In Progress</h3>
+                        <div id="inProgressTasks" class="planner-tasks" ondrop="dropTaskPlanner(event)" ondragover="allowDrop(event)"></div>
+                    </div>
+                    <div class="planner-column">
+                        <h3><i class="fas fa-check-circle"></i> Completed</h3>
+                        <div id="completedTasks" class="planner-tasks" ondrop="dropTaskPlanner(event)" ondragover="allowDrop(event)"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Form Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Create New Task</h2>
+                <button class="close-btn" onclick="closeTaskForm()">&times;</button>
+            </div>
+            <form class="task-form" onsubmit="saveTask(event)">
+                <input type="hidden" id="taskId">
+                
+                <div class="form-group">
+                    <label for="title">Task Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="date" id="dueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" placeholder="e.g., Work, Personal">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeTaskForm()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Calendar Task Modal -->
+    <div id="calendarTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Task for <span id="selectedDate"></span></h2>
+                <button class="close-btn" onclick="closeCalendarTaskForm()">&times;</button>
+            </div>
+            <form class="task-form" onsubmit="saveCalendarTask(event)">
+                <input type="hidden" id="calendarDueDate">
+                
+                <div class="form-group">
+                    <label for="calendarTitle">Task Title *</label>
+                    <input type="text" id="calendarTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="calendarDescription">Description</label>
+                    <textarea id="calendarDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="calendarPriority">Priority</label>
+                        <select id="calendarPriority">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="calendarCategory">Category</label>
+                        <input type="text" id="calendarCategory" placeholder="e.g., Work, Personal">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeCalendarTaskForm()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
