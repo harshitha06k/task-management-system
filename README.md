@@ -1,5 +1,6 @@
 # 📋 Task Management Web Application
 
+**Live Demo:** [Task Management](https://harshitha06k.github.io/task-management-system/)
 A lightweight, browser-based task manager built with vanilla HTML, CSS, and JavaScript.
 
 ![HTML](https://img.shields.io/badge/HTML-5-orange) ![CSS](https://img.shields.io/badge/CSS-3-blue) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow) ![License](https://img.shields.io/badge/License-MIT-green)
